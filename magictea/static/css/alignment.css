@@ -1,0 +1,21 @@
+div {
+    margin: 20px;
+}
+
+.align {
+    width: 40%;
+    display: inline-block;
+    background-color: #25cff2;
+}
+
+h1{
+    padding-left: -40px;
+    font-weight: bold;
+    margin-top:10px
+}
+
+@media screen and (max-width: 500px) {
+    .align {
+        width: 70%
+    }
+}

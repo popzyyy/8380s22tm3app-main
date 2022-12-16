@@ -1,0 +1,91 @@
+{% extends "magictea/base.html" %}
+{% load static %}
+{% block title %}
+{% load mathfilters %}
+{% load humanize %}
+    Your shopping cart
+{% endblock %}
+{% block content %}
+    <link href="{% static "css/cart.css" %}" rel="stylesheet"/>
+    <style>
+        img {
+            width: 300px;
+            object-fit: cover;
+        }
+    </style>
+    <h1>Your shopping cart</h1>
+    <section class="py-3 center">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-fixed w-auto">
+                <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Remove</th>
+                    <th>Unit price</th>
+                    <th>Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in cart %}
+                    {% with product=item.product %}
+                        <tr>
+                            <td>
+                                <a href="{{ product.get_absolute_url }}">
+                                    <img src="{% if product.image %}{{ product.image.url}}{% else %}{% static "images/no_preview.jpg" %}{% endif %}" alt="product-image">
+                                </a>
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>
+                                <form action="{% url "magictea:cart_add" product.id %}" method="post">
+                                    {{ item.update_quantity_form.quantity }}
+                                    {{ item.update_quantity_form.override }}
+                                    <input type="submit" class="btn btn-outline-dark" value="Update">
+                                    {% csrf_token %}
+                                </form>
+                            </td>
+                            <td>
+                                <form action="{% url "magictea:cart_remove" product.id %}" method="post">
+                                    <input type="submit" class="btn btn-outline-dark" value="Remove">
+                                    {% csrf_token %}
+                                </form>
+                            </td>
+                            <td class="num">${{ item.price }}
+                                <br>
+                                {%  if conversion_rate > 0 %}
+                            {{ currency_code }} {{ item.price | mul:conversion_rate | intcomma | floatformat:2}}
+                                {% endif %}
+                            </td>
+                            <td class="num">${{ item.total_price }}
+                            <br>
+                                {%  if conversion_rate > 0 %}
+                            {{ currency_code }} {{ item.total_price | mul:conversion_rate | intcomma | floatformat:2}}
+                            {% endif %}
+                            </td>
+
+                        </tr>
+                    {% endwith %}
+                {% endfor %}
+                <tr class="total">
+                    <td>Total</td>
+                    <td colspan="4"></td>
+                    <td class="num">${{ cart.get_total_price }}
+                        {%  if conversion_rate > 0 %}
+                    {{ currency_code }} {{ cart.get_total_price | mul:conversion_rate | intcomma | floatformat:2}}</td>
+                        {% endif %}
+                </tr>
+                </tbody>
+            </table>
+            <p class="text-right">
+                <a href="{% url "magictea:product_list" %}" class="btn btn-outline-dark">Continue shopping</a>
+                {% if cart.get_total_price > 0 %}
+                    <a href="{% url "magictea:order_create" %}" class="btn btn-outline-dark">Checkout</a>
+                {% endif %}
+                <p>
+                    <b>All currency conversions are informational only. MagicTea only accepts payment in USD.</b>
+                </p>
+
+        </div>
+    </section>
+{% endblock %}
